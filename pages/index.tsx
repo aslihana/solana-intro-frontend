@@ -8,6 +8,11 @@ import * as Web3 from '@solana/web3.js'
 const Home: NextPage = () => {
   const [balance, setBalance] = useState(0)
   const [address, setAddress] = useState('')
+  /* Add another call to useState that let’s you set the 
+  executable property value from 
+  the account info and display it in the UI
+  */ 
+  const [isExecutable, setIsExecutable] = useState(false);
 
   const addressSubmittedHandler = (address: string) => {
     try {
@@ -21,6 +26,16 @@ const Home: NextPage = () => {
       connection.getBalance(key).then(balance => {
         setBalance(balance / web3.LAMPORTS_PER_SOL)
       })
+
+      /* Use the method 
+      getAccountInfo to get a 
+      JSON object with information about the account
+      */
+      connection.getAccountInfo(key).then(info => {
+        /* Check its properties to find out if its executable
+        */
+        setIsExecutable(info?.executable ?? false);
+      })
     }
       catch(error) {
         setAddress('')
@@ -29,6 +44,8 @@ const Home: NextPage = () => {
       }
   
   }
+
+
 
   return (
     <div className={styles.App}>
@@ -39,6 +56,7 @@ const Home: NextPage = () => {
         <AddressForm handler={addressSubmittedHandler} />
         <p>{`Address: ${address}`}</p>
         <p>{`Balance: ${balance} SOL`}</p>
+        <p>{`Is it executable? ${isExecutable ? 'Yes' : 'No'}`}</p>
       </header>
     </div>
   )
